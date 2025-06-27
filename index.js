@@ -9,6 +9,12 @@ app.get('/skins', async (req, res) => {
   try {
     const response = await fetch('https://csgobackpack.net/api/GetItemsList/v2/?appid=730');
     const data = await response.json();
+
+    if (!data || !data.items_list) {
+      console.error("❌ API ответ не содержит items_list");
+      return res.status(500).json({ error: "Invalid API response" });
+    }
+
     const result = [];
 
     for (const [name, item] of Object.entries(data.items_list)) {
@@ -33,11 +39,11 @@ app.get('/skins', async (req, res) => {
       }
     }
 
-    result.sort((a, b) => b.profit - a.profit); // сортировка по выгоде
+    console.log(`✅ Отправлено ${result.length} скинов`);
     res.json({ count: result.length, items: result });
   } catch (err) {
-    console.error('Fetch error:', err);
-    res.status(500).json({ error: 'Failed to fetch data' });
+    console.error("🔥 Ошибка прокси:", err);
+    res.status(500).json({ error: "Failed to fetch or process data" });
   }
 });
 
